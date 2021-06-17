@@ -9,8 +9,6 @@
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#how-to-use">How To Use</a> •
   <a href="#database-design">Database Design</a> •
-  <a href="#credits">Credits</a> •
-  <a href="#related">Related</a> •
   <a href="#license">License</a>
 </p>
 <br />
@@ -37,6 +35,8 @@ Login screen               |  Dashboard                |  Expenses
 * Cookie-based authentication.
 * Expense and budget tracking
 * Explore pet-friendly restaurants/cafe  
+
+<br />
 
 ## How To Use
 
@@ -71,3 +71,12 @@ $ yarn run dev
 ## Database Design
 
 <img src="client/public/images/db-design.png" height="300" />
+
+<br />
+
+## License
+
+MIT
+
+---
+> GitHub [@appu4ever](https://github.com/appu4ever) &nbsp;&middot;&nbsp;
