@@ -35,8 +35,8 @@ const Login: React.FC<{}> = ({}) => {
             Welcome back.
           </Heading>
           <Text color={'gray.500'} fontSize={{ base: 'sm', sm: 'md' }}>
-            We’re looking for amazing engineers just like you! Become a part of
-            our rockstar engineering team and skyrocket your career!
+            Never compromise on your life or your pet's! Login and experience
+            the world of BestieLife!
           </Text>
           <Formik
             initialValues={{ email: '', password: '' }}
