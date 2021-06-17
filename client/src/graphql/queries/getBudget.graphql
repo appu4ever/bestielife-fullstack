@@ -1,0 +1,6 @@
+query GetBudget($petId: Int!, $monthAndYear: String!) {
+  getBudget(petId: $petId, monthAndYear: $monthAndYear) {
+    id
+    amount
+  }
+}

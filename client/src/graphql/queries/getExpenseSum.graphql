@@ -1,0 +1,9 @@
+query GetSumOfExpenses($petId: Int!) {
+  getSumOfExpenses(petId: $petId) {
+    result {
+      sum
+      monthAndYear
+    }
+    message
+  }
+}

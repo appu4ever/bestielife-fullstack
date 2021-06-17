@@ -1,0 +1,14 @@
+mutation CreatePet($data: CreatePetInput!, $picture: Upload!) {
+  createPet(data: $data, picture: $picture) {
+    errors {
+      field
+      message
+    }
+    pet {
+      id
+      name
+      breed
+      avatar
+    }
+  }
+}

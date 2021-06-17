@@ -1,0 +1,12 @@
+query GetExpenses($limit: Int!, $after: Int, $petId: Int!) {
+  getExpenses(limit: $limit, petId: $petId, after: $after) {
+    hasMore
+    cursor
+    expenses {
+      id
+      amount
+      description
+      date
+    }
+  }
+}

@@ -1,0 +1,15 @@
+mutation CreateExpense($options: CreateExpenseInput!) {
+  createExpense(options: $options) {
+    errors {
+      field
+      message
+    }
+    expense {
+      amount
+      date
+      description
+      createdAt
+      updatedAt
+    }
+  }
+}

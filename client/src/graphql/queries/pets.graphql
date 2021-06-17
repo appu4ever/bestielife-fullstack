@@ -1,0 +1,8 @@
+query Pets($limit: Int!) {
+  pets(limit: $limit) {
+    id
+    name
+    breed
+    avatar
+  }
+}

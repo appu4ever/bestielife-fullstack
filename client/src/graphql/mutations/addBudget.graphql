@@ -1,0 +1,11 @@
+mutation AddBudget($options: CreateBudgetInput!) {
+  createBudget(options: $options) {
+    errors {
+      field
+      message
+    }
+    budget {
+      amount
+    }
+  }
+}

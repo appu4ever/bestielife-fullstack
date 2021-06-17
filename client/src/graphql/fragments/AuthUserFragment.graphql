@@ -1,0 +1,10 @@
+fragment AuthUserFragment on UserResponse {
+  errors {
+    field
+    message
+  }
+  user {
+    id
+    email
+  }
+}
