@@ -108,7 +108,8 @@ export class ExpenseResolver {
   async getExpenses(
     @Arg('limit', () => Int) limit: number,
     @Arg('after', () => Int, { nullable: true }) after: number | null,
-    @Arg('petId', () => Int) petId: number
+    @Arg('petId', () => Int) petId: number,
+    @Arg('date', () => String, { nullable: true }) date: string
   ): Promise<PaginatedExpenses | null> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
@@ -118,23 +119,29 @@ export class ExpenseResolver {
     if (after) {
       replacements.push(after);
     }
-    // const result = await getConnection().query(
-    //   `select expenses.id, expenses.amount, expenses.description,
-    //   expenses.date
-    //   from expenses where expenses."petId" = $1
-    //   ${cursor ? `and TO_CHAR(expenses.date, 'mm/dd/YYYY') < $3` : ''}
-    //   order by expenses.date DESC limit $2`,
-    //   replacements
-    // );
+    if (date) {
+      replacements.push(date);
+    }
+    let query = '';
+    if (after && date) {
+      query = `and expenses.id < $3 and expenses.date = $4`;
+    } else if (after && !date) {
+      query = `and expenses.id < $3`;
+    } else if (!after && date) {
+      query = `and expenses.date = $3`;
+    } else {
+      query = '';
+    }
+
     const result = await getConnection().query(
       `select expenses.id, expenses.amount, expenses.description,
       expenses.date
       from expenses where expenses."petId" = $1
-      ${after ? `and expenses.id < $3` : ''}
+      ${query}
       order by expenses.id DESC limit $2`,
       replacements
     );
-    console.log('PETID', petId);
+
     if (result.length === 0) {
       return null;
     } else {

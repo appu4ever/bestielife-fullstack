@@ -226,6 +226,7 @@ export type QueryGetBudgetArgs = {
 
 
 export type QueryGetExpensesArgs = {
+  date?: Maybe<Scalars['String']>;
   petId: Scalars['Int'];
   after?: Maybe<Scalars['Int']>;
   limit: Scalars['Int'];
@@ -443,6 +444,7 @@ export type GetSumOfExpensesQuery = (
 export type GetExpensesQueryVariables = Exact<{
   limit: Scalars['Int'];
   after?: Maybe<Scalars['Int']>;
+  date?: Maybe<Scalars['String']>;
   petId: Scalars['Int'];
 }>;
 
@@ -900,8 +902,8 @@ export type GetSumOfExpensesQueryHookResult = ReturnType<typeof useGetSumOfExpen
 export type GetSumOfExpensesLazyQueryHookResult = ReturnType<typeof useGetSumOfExpensesLazyQuery>;
 export type GetSumOfExpensesQueryResult = Apollo.QueryResult<GetSumOfExpensesQuery, GetSumOfExpensesQueryVariables>;
 export const GetExpensesDocument = gql`
-    query GetExpenses($limit: Int!, $after: Int, $petId: Int!) {
-  getExpenses(limit: $limit, petId: $petId, after: $after) {
+    query GetExpenses($limit: Int!, $after: Int, $date: String, $petId: Int!) {
+  getExpenses(limit: $limit, petId: $petId, after: $after, date: $date) {
     hasMore
     cursor
     expenses {
@@ -928,6 +930,7 @@ export const GetExpensesDocument = gql`
  *   variables: {
  *      limit: // value for 'limit'
  *      after: // value for 'after'
+ *      date: // value for 'date'
  *      petId: // value for 'petId'
  *   },
  * });

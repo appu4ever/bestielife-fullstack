@@ -1,45 +1,24 @@
 /*eslint-disable*/
-import {
-  Box,
-  Flex,
-  Link,
-  Spinner,
-  Stack,
-  useDisclosure,
-  useTheme,
-  Text,
-  Heading,
-  Button,
-  IconButton,
-} from '@chakra-ui/react';
-import { useHistory } from 'react-router-dom';
+import { Spinner, Stack, Text, Button } from '@chakra-ui/react';
 import React from 'react';
-import { FocusableElement } from '@chakra-ui/utils';
-import { AddIcon, SearchIcon } from '@chakra-ui/icons';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { usePetID } from '../contexts/pet-context';
-import { useGetExpensesQuery } from '../generated/graphql';
+import {
+  Expense,
+  GetExpensesQuery,
+  PaginatedExpenses,
+  useGetExpensesLazyQuery,
+  useGetExpensesQuery,
+} from '../generated/graphql';
 import AppPageLayout from '../layouts/AppPageLayout';
-import AddExpenseForm from '../components/AddExpenseForm';
 import { months } from '../constants';
 
 import { ExpenseCard } from '../components/ExpenseCard';
-import { Calendar } from '../components/Calendar';
-
-interface Variables {
-  limit: number;
-  cursor?: number | null;
-  petId: number;
-}
+import { formatDate } from '../utils/formatDate';
+import AllExpensesHeader from '../components/all-expenses/AllExpensesHeader';
 
 const AllExpenses: React.FC<{}> = ({}) => {
-  const history = useHistory();
-  const theme = useTheme();
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const finalRef = React.useRef<FocusableElement | undefined>(undefined);
   const [isLoading, setIsLoading] = React.useState<Boolean>(false);
   const [monthAndYear, setMonthAndYear] = React.useState<string>(
     `${months[new Date().getMonth()]} ${new Date().getFullYear()}`
@@ -47,137 +26,112 @@ const AllExpenses: React.FC<{}> = ({}) => {
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(
     new Date()
   );
+  const [expenses, setExpenses] =
+    React.useState<PaginatedExpenses | null>(null);
   //@ts-ignore
-  const [petId, setPetId] = usePetID();
+  const [petId] = usePetID();
 
-  // console.log('PETID', petId);
+  const { data, loading, error, fetchMore, variables, refetch } =
+    useGetExpensesQuery({
+      variables: {
+        limit: 10,
+        petId: petId,
+      },
+    });
 
-  const {
-    data,
-    loading: expenseLoading,
-    error,
-    fetchMore,
-    variables,
-    refetch,
-  } = useGetExpensesQuery({
-    variables: {
-      limit: 10,
-      petId: petId,
-    },
-    // notifyOnNetworkStatusChange: true,
-    // fetchPolicy: 'cache-and-network',
-    // nextFetchPolicy: 'cache-first',
+  const [
+    expenseQuery,
+    { data: searchExpenseData, loading: searchExpenseLoading },
+  ] = useGetExpensesLazyQuery({
+    fetchPolicy: 'no-cache',
   });
 
-  const refetchQuery = React.useCallback(async () => {
-    await refetch();
-  }, [petId]);
   React.useEffect(() => {
-    // console.log('running useeffect', petId);
-    // if (isLoading) {
-    refetchQuery();
-    // }
-  }, [petId]);
+    // @ts-ignore
+    if (data?.getExpenses) setExpenses(data?.getExpenses);
+  }, [data?.getExpenses]);
 
-  // console.log('DATA:', data?.getExpenses?.expenses);
-
-  let body = null;
-
-  // console.log('ERROR', error);
-  if (expenseLoading) {
-    body = <Spinner size="lg" />;
-  } else {
-    if (data?.getExpenses) {
-      body = (
-        <>
-          <Stack spacing={8} w={'80%'} margin={'0 auto'}>
-            <Flex w={'100%'} justifyContent="space-between">
-              <Text fontSize={'lg'} fontWeight="bold">
-                {monthAndYear}
-              </Text>
-              <Flex justifyContent="space-between">
-                <Box>
-                  <IconButton
-                    color={theme.colors.blue}
-                    as={Link}
-                    mr={4}
-                    aria-label="Add"
-                    onClick={onOpen}
-                    icon={<AddIcon />}
-                  />
-
-                  <AddExpenseForm
-                    isOpen={isOpen}
-                    //@ts-ignore
-                    finalRef={finalRef}
-                    onClose={onClose}
-                    petId={petId}
-                    refetch={refetch}
-                  />
-                </Box>
-                <Box>
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={(date: Date) => {
-                      setSelectedDate(date);
-                      // setFieldValue('monthAndYear', date);
-                    }}
-                    customInput={
-                      <IconButton
-                        color={theme.colors.blue}
-                        as={Link}
-                        mr={4}
-                        aria-label="Search"
-                        onClick={onOpen}
-                        icon={<SearchIcon />}
-                      />
-                    }
-                    calendarContainer={Calendar}
-                  />
-                </Box>
-              </Flex>
-            </Flex>
-
-            {data.getExpenses.expenses.map((expense) => (
-              <div key={expense.id}>
-                <ExpenseCard expense={expense} />
-              </div>
-            ))}
-          </Stack>
-        </>
-      );
+  React.useEffect(() => {
+    if (searchExpenseData?.getExpenses) {
+      // @ts-ignore
+      setExpenses(searchExpenseData?.getExpenses);
     } else {
-      body = <Text>You do not have expenses for this month.</Text>;
+      setExpenses(null);
     }
+  }, [searchExpenseData?.getExpenses]);
+
+  // console.log('searchExpenseData.getExpenses.expenses', searchExpenseData);
+  // console.log('data.getExpenses.expenses', data?.getExpenses);
+  console.log('expenses', expenses);
+
+  if (searchExpenseLoading || loading) {
+    return <Spinner size="lg" />;
   }
+
   return (
     <AppPageLayout>
       <Stack w={{ md: '4xl' }} spacing={8}>
-        {body}
-      </Stack>
-      {data?.getExpenses && data.getExpenses.hasMore ? (
-        isLoading ? (
-          <Spinner size="sm" />
-        ) : (
-          <Button
-            mt={12}
-            isLoading={expenseLoading}
-            onClick={async () => {
-              setIsLoading(true);
-              await fetchMore({
+        <Stack spacing={8} w={'80%'} margin={'0 auto'}>
+          <AllExpensesHeader
+            monthAndYear={monthAndYear}
+            refetch={refetch}
+            petId={petId}
+            date={selectedDate}
+            onChange={(date: Date) => {
+              setSelectedDate(date);
+              setMonthAndYear(formatDate(date, 'with-date'));
+              expenseQuery({
                 variables: {
-                  limit: variables?.limit,
+                  limit: 10,
                   petId,
-                  after: data.getExpenses.cursor,
+                  date: formatDate(date, 'with-date'),
                 },
               });
-              setIsLoading(false);
             }}
-          >
-            Load more
-          </Button>
-        )
-      ) : null}
+            onClear={() => {
+              data.getExpenses
+                ? //@ts-ignore
+                  setExpenses(data.getExpenses)
+                : setExpenses(null);
+            }}
+          />
+
+          {expenses ? (
+            <>
+              {expenses.expenses.map((expense) => (
+                <div key={expense.id}>
+                  <ExpenseCard expense={expense} />
+                </div>
+              ))}
+              {expenses && expenses.hasMore ? (
+                isLoading ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <Button
+                    mt={12}
+                    isLoading={loading}
+                    onClick={async () => {
+                      setIsLoading(true);
+                      await fetchMore({
+                        variables: {
+                          limit: variables?.limit,
+                          petId,
+                          after: data.getExpenses.cursor,
+                        },
+                      });
+                      setIsLoading(false);
+                    }}
+                  >
+                    Load more
+                  </Button>
+                )
+              ) : null}
+            </>
+          ) : (
+            <Text>You do not have expenses for {monthAndYear}</Text>
+          )}
+        </Stack>
+      </Stack>
     </AppPageLayout>
   );
 };

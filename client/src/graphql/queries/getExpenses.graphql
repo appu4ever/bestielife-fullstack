@@ -1,5 +1,5 @@
-query GetExpenses($limit: Int!, $after: Int, $petId: Int!) {
-  getExpenses(limit: $limit, petId: $petId, after: $after) {
+query GetExpenses($limit: Int!, $after: Int, $date: String, $petId: Int!) {
+  getExpenses(limit: $limit, petId: $petId, after: $after, date: $date) {
     hasMore
     cursor
     expenses {

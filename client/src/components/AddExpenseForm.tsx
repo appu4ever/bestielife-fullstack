@@ -35,11 +35,12 @@ interface AddExpenseFormProps {
   finalRef: FocusableElement | undefined;
   isOpen: boolean;
   onClose: () => void;
-  refetch: (variables?: {
-    limit: number;
-    after?: number;
-    petId: number;
-  }) => Promise<ApolloQueryResult<GetExpensesQuery>>;
+  // refetch: (variables?: {
+  //   limit: number;
+  //   after?: number;
+  //   petId: number;
+  // }) => Promise<ApolloQueryResult<GetExpensesQuery>>;
+  refetch: React.Dispatch<React.SetStateAction<Boolean>>;
 }
 
 const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
@@ -112,7 +113,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
             if (response.data?.createExpense.errors) {
               setErrors(toErrorMap(response.data?.createExpense.errors));
             } else {
-              await refetch();
+              refetch(true);
             }
           }}
         >

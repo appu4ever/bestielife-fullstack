@@ -14,7 +14,7 @@ function usePetID(): React.Context<null> {
 }
 
 function PetIDProvider(props: any) {
-  const [petId, setPetId] = React.useState<number | undefined>(undefined);
+  const [petId, setPetId] = React.useState<number>(0);
   const { data, loading, error } = usePetsQuery({ variables: { limit: 10 } });
   // const mountedRef = React.useRef<Boolean>(true);
 
@@ -28,11 +28,7 @@ function PetIDProvider(props: any) {
   // }, [loading]);
 
   const value = React.useMemo<
-    [
-      number | undefined,
-      Dispatch<SetStateAction<number | undefined>>,
-      PetsQuery
-    ]
+    [number | undefined, Dispatch<SetStateAction<number>>, PetsQuery]
   >(() => [petId, setPetId, data], [data, petId]);
 
   return <PetIDContext.Provider value={value} {...props} />;
